@@ -5,8 +5,8 @@ import ssl
 def run(host="localhost", port=8080):
     context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
     context.load_cert_chain(
-        certfile="/tmp/madara_cert.pem",
-        keyfile="/tmp/madara_key.pem"
+        certfile="madara_cert.pem",
+        keyfile="madara_key.pem"
     )
 
     server = HTTPServer((host, port), MadaraHandler)

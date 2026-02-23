@@ -68,26 +68,30 @@ class MadaraHandler(BaseHTTPRequestHandler):
         PATH, ACCESS_TOKEN, COOKIE_VALUE = get_env_info()
         correct_cookie = self.cookie_info()
 
+        self.protocol_version = "HTTP/1.1"
+
         if (
             self.path == PATH
             and correct_cookie == COOKIE_VALUE
             and self.headers.get("X-Access-Token") == ACCESS_TOKEN
         ):
-            # Read the request body
             content_length = int(self.headers.get("Content-Length", 0))
             command = self.rfile.read(content_length).decode("utf-8")
             self.command_queue.appendleft(command)
             print(self.command_queue)
 
-            # Process heartbeat / save info
             beat = self.heart_beat()
             self.save_info(beat)
 
-            # Send the response
+            response_body = b"meow\n"
+
             self.send_response(200)
             self.send_header("Content-Type", "text/plain")
+            self.send_header("Content-Length", str(len(response_body)))  # <-- Add this
+            self.send_header("Connection", "close")                    # <-- Recommended
             self.end_headers()
-            self.wfile.write(b"meow\n")
+
+            self.wfile.write(response_body)
             self.wfile.flush()
             return
         else:
